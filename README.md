@@ -10,11 +10,11 @@ MediCard is an AI-powered healthcare coordination platform designed to eliminate
 
 ## Key Features
 
-- ** AI Semantic Provider Search:** Goes beyond keyword lookups to match patients with the most relevant hospitals and specialists based on medical intent, location, language preference, and accepted insurance.
-- ** Medical Data Interoperability (FHIR & IPS):** Standardizes clinical records into HL7 FHIR R4 and International Patient Summary (IPS) formats using universal clinical vocabularies like **SNOMED CT**, **LOINC**, and **RxNorm**.
-- ** Sovereign Digital Identity & Consent:** Gives patients granular control over who accesses their medical information through secure authentication, role-based access, and permissioned audit trails (Hyperledger Fabric prototype).
-- ** Programmatic Financial Routing:** Coordinates insurance pre-authorizations, eligibility checks (X12 EDI 270/271), and single-use Virtual Credit Cards (VCC) locked to healthcare Merchant Category Codes (MCCs).
-- ** OCR-Based Medical Bill Verification:** Automatically extracts line items, pricing, and totals from foreign medical invoices using OCR and validates them against rules to detect discrepancies.
+-  AI Semantic Provider Search:** Goes beyond keyword lookups to match patients with the most relevant hospitals and specialists based on medical intent, location, language preference, and accepted insurance.
+-  Medical Data Interoperability (FHIR & IPS):** Standardizes clinical records into HL7 FHIR R4 and International Patient Summary (IPS) formats using universal clinical vocabularies like **SNOMED CT**, **LOINC**, and **RxNorm**.
+-  Sovereign Digital Identity & Consent:** Gives patients granular control over who accesses their medical information through secure authentication, role-based access, and permissioned audit trails (Hyperledger Fabric prototype).
+-  Programmatic Financial Routing:** Coordinates insurance pre-authorizations, eligibility checks (X12 EDI 270/271), and single-use Virtual Credit Cards (VCC) locked to healthcare Merchant Category Codes (MCCs).
+-  OCR-Based Medical Bill Verification:** Automatically extracts line items, pricing, and totals from foreign medical invoices using OCR and validates them against rules to detect discrepancies.
 
 ---
 
