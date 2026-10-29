@@ -4,17 +4,17 @@
 [![Domain](https://img.shields.io/badge/Domain-AI%20%2F%20Healthcare%20IT%20%2F%20Fintech-green)]()
 [![Status](https://img.shields.io/badge/Status-Prototype%20%2F%20Research-orange)]()
 
-MediCard is an AI-powered healthcare coordination platform designed to eliminate the friction, language barriers, and out-of-pocket delays associated with cross-border medical care[cite: 1, 2]. By combining intelligent provider discovery, HL7 FHIR standardized health records, patient-controlled consent management, and automated financial routing, MediCard creates a seamless bridge between patients and global medical networks[cite: 1, 2, 3].
+MediCard is an AI-powered healthcare coordination platform designed to eliminate the friction, language barriers, and out-of-pocket delays associated with cross-border medical care[cite: 1, 2]. By combining intelligent provider discovery, HL7 FHIR standardized health records, patient-controlled consent management, and automated financial routing, MediCard creates a seamless bridge between patients and global medical networks.
 
 ---
 
 ## Key Features
 
-- ** AI Semantic Provider Search:** Goes beyond keyword lookups to match patients with the most relevant hospitals and specialists based on medical intent, location, language preference, and accepted insurance[cite: 2, 4].
-- ** Medical Data Interoperability (FHIR & IPS):** Standardizes clinical records into HL7 FHIR R4 and International Patient Summary (IPS) formats using universal clinical vocabularies like **SNOMED CT**, **LOINC**, and **RxNorm**[cite: 1, 4].
-- ** Sovereign Digital Identity & Consent:** Gives patients granular control over who accesses their medical information through secure authentication, role-based access, and permissioned audit trails (Hyperledger Fabric prototype)[cite: 1, 2].
-- ** Programmatic Financial Routing:** Coordinates insurance pre-authorizations, eligibility checks (X12 EDI 270/271), and single-use Virtual Credit Cards (VCC) locked to healthcare Merchant Category Codes (MCCs)[cite: 2, 5].
-- ** OCR-Based Medical Bill Verification:** Automatically extracts line items, pricing, and totals from foreign medical invoices using OCR and validates them against rules to detect discrepancies[cite: 1, 2].
+- ** AI Semantic Provider Search:** Goes beyond keyword lookups to match patients with the most relevant hospitals and specialists based on medical intent, location, language preference, and accepted insurance.
+- ** Medical Data Interoperability (FHIR & IPS):** Standardizes clinical records into HL7 FHIR R4 and International Patient Summary (IPS) formats using universal clinical vocabularies like **SNOMED CT**, **LOINC**, and **RxNorm**.
+- ** Sovereign Digital Identity & Consent:** Gives patients granular control over who accesses their medical information through secure authentication, role-based access, and permissioned audit trails (Hyperledger Fabric prototype).
+- ** Programmatic Financial Routing:** Coordinates insurance pre-authorizations, eligibility checks (X12 EDI 270/271), and single-use Virtual Credit Cards (VCC) locked to healthcare Merchant Category Codes (MCCs).
+- ** OCR-Based Medical Bill Verification:** Automatically extracts line items, pricing, and totals from foreign medical invoices using OCR and validates them against rules to detect discrepancies.
 
 ---
 
@@ -24,9 +24,9 @@ MediCard is an AI-powered healthcare coordination platform designed to eliminate
 | :--- | :--- |
 | **Frontend UI** | React.js, HTML, CSS |
 | **Backend & APIs** | Node.js, Express.js |
-| **AI, NLP & Search** | Python, Vector Embeddings (Qdrant / Hybrid Search Engine), Pydantic Parsers[cite: 1, 4] |
+| **AI, NLP & Search** | Python, Vector Embeddings (Qdrant / Hybrid Search Engine), Pydantic Parsers |
 | **Database & Storage** | MongoDB |
-| **Healthcare Standards** | HL7 FHIR R4, International Patient Summary (IPS), SNOMED CT, LOINC, RxNorm[cite: 1, 4] |
+| **Healthcare Standards** | HL7 FHIR R4, International Patient Summary (IPS), SNOMED CT, LOINC, RxNorm |
 | **Security & Blockchain** | AES-256-GCM Encryption, Hyperledger Fabric (for consent audit logs) |
 | **Financial / OCR** | OCR Libraries, Stripe Issuing / Marqeta / Nium (Virtual Card APIs), X12 EDI |
 
@@ -36,10 +36,10 @@ MediCard is an AI-powered healthcare coordination platform designed to eliminate
 
 MediCard's modular architecture is divided into five core operational layers:
 1. **User Interface Layer:** Patient/Provider registration, search dashboards, and status trackers.
-2. **AI & Application Services Layer:** Handles semantic provider matching, intent parsing, and OCR invoice extraction[cite: 1, 2, 4].
-3. **Healthcare Interoperability Layer:** Manages FHIR/IPS resource mapping and clinical data translation[cite: 1, 4].
-4. **Security & Identity Layer:** Enforces authentication, encryption, role-based access control, and consent verification[cite: 1, 2].
-5. **Financial Routing Layer:** Coordinates insurance eligibility, automated claims processing, and virtual payment tracking[cite: 1, 2, 5].
+2. **AI & Application Services Layer:** Handles semantic provider matching, intent parsing, and OCR invoice extraction.
+3. **Healthcare Interoperability Layer:** Manages FHIR/IPS resource mapping and clinical data translation.
+4. **Security & Identity Layer:** Enforces authentication, encryption, role-based access control, and consent verification.
+5. **Financial Routing Layer:** Coordinates insurance eligibility, automated claims processing, and virtual payment tracking.
 
 ---
 
