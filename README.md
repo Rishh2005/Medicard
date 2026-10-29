@@ -22,13 +22,13 @@ MediCard is an AI-powered healthcare coordination platform designed to eliminate
 
 | Layer | Technologies / Frameworks |
 | :--- | :--- |
-| **Frontend UI** | React.js |
+| **Frontend UI** | React.js, HTML, CSS |
 | **Backend & APIs** | Node.js, Express.js |
 | **AI, NLP & Search** | Python, Vector Embeddings (Qdrant / Hybrid Search Engine), Pydantic Parsers[cite: 1, 4] |
 | **Database & Storage** | MongoDB |
 | **Healthcare Standards** | HL7 FHIR R4, International Patient Summary (IPS), SNOMED CT, LOINC, RxNorm[cite: 1, 4] |
-| **Security & Blockchain** | AES-256-GCM Encryption, Hyperledger Fabric (for consent audit logs)[cite: 1, 2] |
-| **Financial / OCR** | OCR Libraries, Stripe Issuing / Marqeta / Nium (Virtual Card APIs), X12 EDI[cite: 2, 5] |
+| **Security & Blockchain** | AES-256-GCM Encryption, Hyperledger Fabric (for consent audit logs) |
+| **Financial / OCR** | OCR Libraries, Stripe Issuing / Marqeta / Nium (Virtual Card APIs), X12 EDI |
 
 ---
 
