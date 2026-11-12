@@ -1,113 +1,47 @@
-# MediCard 🩺💳
-### A Unified Technical Framework for AI-Driven Global Medical Navigation and Sovereign Identity
+# MediCard
 
-[![Domain](https://img.shields.io/badge/Domain-AI%20%2F%20Healthcare%20IT%20%2F%20Fintech-green)]()
-[![Status](https://img.shields.io/badge/Status-Prototype%20%2F%20Research-orange)]()
+MediCard is a deployable reference implementation for healthcare coordination: a Next.js dashboard, a Flask API, an HL7 FHIR R4 intake path, encrypted record storage, signed sovereign-identity verification, and explainable clinical routing.
 
-MediCard is an AI-powered healthcare coordination platform designed to eliminate the friction, language barriers, and out-of-pocket delays associated with cross-border medical care[cite: 1, 2]. By combining intelligent provider discovery, HL7 FHIR standardized health records, patient-controlled consent management, and automated financial routing, MediCard creates a seamless bridge between patients and global medical networks.
+> **Clinical and compliance boundary:** MediCard is not a medical device and does not diagnose, recommend treatment, or replace clinician judgment. The routing output is administrative decision support and must be reviewed by a qualified clinician. This repository is a secure engineering baseline, not a HIPAA certification or a substitute for a privacy/security risk assessment, legal review, validated clinical software lifecycle, penetration testing, or operational controls.
 
----
+## Architecture
 
-## Key Features
+- `frontend/`: Next.js App Router dashboard with token-based API calls, records lookup, browser QR scanning, and routing results.
+- `backend/`: Flask API with JWT role checks, FHIR Bundle validation, SQLAlchemy connection pooling, and structured JSON logs.
+- `ml_pipeline/`: deterministic, explainable urgency routing and image-landmark biomechanics calculations. These are not diagnostic models.
+- `security/`: authenticated encryption, HMAC patient pseudonyms, signed credential verification, and response masking helpers.
+- `database/`: MySQL schema/configuration and MongoDB validation/replica-set initialization.
+- `docker/`: backend and frontend container definitions and the local multi-container compose deployment.
 
--  AI Semantic Provider Search:** Goes beyond keyword lookups to match patients with the most relevant hospitals and specialists based on medical intent, location, language preference, and accepted insurance.
--  Medical Data Interoperability (FHIR & IPS):** Standardizes clinical records into HL7 FHIR R4 and International Patient Summary (IPS) formats using universal clinical vocabularies like **SNOMED CT**, **LOINC**, and **RxNorm**.
--  Sovereign Digital Identity & Consent:** Gives patients granular control over who accesses their medical information through secure authentication, role-based access, and permissioned audit trails (Hyperledger Fabric prototype).
--  Programmatic Financial Routing:** Coordinates insurance pre-authorizations, eligibility checks (X12 EDI 270/271), and single-use Virtual Credit Cards (VCC) locked to healthcare Merchant Category Codes (MCCs).
--  OCR-Based Medical Bill Verification:** Automatically extracts line items, pricing, and totals from foreign medical invoices using OCR and validates them against rules to detect discrepancies.
+## Run locally with Docker
 
----
+1. Copy `.env.example` to `.env`. Generate each key independently; do not use the example value in a real deployment:
 
-## Technology Stack
+   ```powershell
+   python -c "import secrets; print(secrets.token_urlsafe(48))"
+   python -c "import secrets; print(secrets.token_urlsafe(48))"
+   python -c "import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
+   ```
 
-| Layer | Technologies / Frameworks |
-| :--- | :--- |
-| **Frontend UI** | React.js, HTML, CSS |
-| **Backend & APIs** | Node.js, Express.js |
-| **AI, NLP & Search** | Python, Vector Embeddings (Qdrant / Hybrid Search Engine), Pydantic Parsers |
-| **Database & Storage** | MongoDB |
-| **Healthcare Standards** | HL7 FHIR R4, International Patient Summary (IPS), SNOMED CT, LOINC, RxNorm |
-| **Security & Blockchain** | AES-256-GCM Encryption, Hyperledger Fabric (for consent audit logs) |
-| **Financial / OCR** | OCR Libraries, Stripe Issuing / Marqeta / Nium (Virtual Card APIs), X12 EDI |
+   Use the first two outputs for `JWT_SECRET` and `PATIENT_HMAC_KEY`; use the third for `DATA_ENCRYPTION_KEY`. Configure `IDENTITY_PUBLIC_KEY` with the trusted issuer's raw Ed25519 public key encoded as base64 and configure a strong `MEDICARD_AUTH_USERS_JSON` password hash. See `backend/README.md` for the expected credential format.
+2. Set `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, and all required secrets in `.env`.
+3. Run `docker compose --env-file .env -f docker\docker-compose.yml up --build`.
+4. Open `http://localhost:3000`. Obtain a JWT from your configured identity user through the sign-in form.
 
----
+The compose topology is suitable for local integration and demonstration only. It runs one MySQL instance and a single-node MongoDB replica set; neither provides production high availability. The route and biomechanics functions are non-diagnostic rules, not an AI model. See [database/README.md](./database/README.md), [security/README.md](./security/README.md), and [ml_pipeline/README.md](./ml_pipeline/README.md) for deployment and clinical boundaries. Use a managed, TLS-enabled database topology with tested backups, failover, key management, and network policy for production. The application refuses to start without required cryptographic configuration.
 
-## System Architecture Overview
+## API
 
-MediCard's modular architecture is divided into five core operational layers:
-1. **User Interface Layer:** Patient/Provider registration, search dashboards, and status trackers.
-2. **AI & Application Services Layer:** Handles semantic provider matching, intent parsing, and OCR invoice extraction.
-3. **Healthcare Interoperability Layer:** Manages FHIR/IPS resource mapping and clinical data translation.
-4. **Security & Identity Layer:** Enforces authentication, encryption, role-based access control, and consent verification.
-5. **Financial Routing Layer:** Coordinates insurance eligibility, automated claims processing, and virtual payment tracking.
+- `GET /api/v1/healthz`: dependency readiness; does not expose database details.
+- `POST /api/v1/auth/token`: exchanges a configured account's password for a short-lived JWT.
+- `POST /api/v1/clinical/records`: authenticated `records:write`; accepts one FHIR R4 `Bundle` containing exactly one `Patient`; stores the full Bundle encrypted.
+- `GET /api/v1/clinical/records/<patient-id>`: authenticated `records:read`; returns matching decrypted FHIR Bundles with Patient direct fields masked. `records:read:full` is needed to return the full Patient resource.
+- `POST /api/v1/clinical/route`: authenticated `clinical:route`; returns deterministic urgency routing and reasons, not a diagnosis.
+- `POST /api/v1/identity/verify`: authenticated `identity:verify`; decrypts an encrypted QR envelope and verifies its Ed25519 issuer signature and expiry.
+- `POST /api/v1/identity/qr`: authenticated `identity:verify`; verifies an issuer-signed credential then encrypts it into a QR envelope.
 
----
+All API routes are under `/api/v1`. The default masking is data minimization, not a HIPAA safe-harbor de-identification guarantee. Requests require HTTPS in production; terminate TLS at a trusted reverse proxy and set `TRUST_PROXY=1` only when that proxy sanitizes forwarded headers. Restrict `CORS_ORIGINS` to the deployed frontend origin.
 
-### **Architecture Diagram**
+## Validation
 
-Below is a structured text-based architecture diagram illustrating the system flow from user interaction down to secure data storage and financial settlement:
-
-```mermaid
-graph TD
-    %% Users & Entry Points
-    subgraph Users ["Client Layer"]
-        Patient["Patient / International Traveler"]
-        Provider["Healthcare Provider / Hospital"]
-    end
-
-    %% Frontend Interface
-    subgraph Frontend ["User Interface (React.js)"]
-        UI["MediCard Web & Dashboard Portal"]
-    end
-
-    Patient -->|Login & Search Queries| UI
-    Provider -->|Access Clinical Records / Billing| UI
-
-    %% Application & AI Core
-    subgraph Core ["AI & Application Services (Node.js / Python)"]
-        Gateway["API Gateway & Router"]
-        AISearch["AI Provider Search (Semantic Vector Engine & Pydantic)"]
-        OCRModule["OCR Bill Extraction & Validation Engine"]
-    end
-
-    UI --> Gateway
-    Gateway --> AISearch
-    Gateway --> OCRModule
-
-    %% Interoperability & Security Layers
-    subgraph Interoperability ["Healthcare Interoperability & Identity"]
-        FHIR["HL7 FHIR R4 & IPS Data Formatter"]
-        Ontology["Clinical Vocabularies (SNOMED CT, LOINC, RxNorm)"]
-        Consent["Consent & Digital ID Management"]
-    end
-
-    AISearch --> FHIR
-    FHIR --> Ontology
-    Gateway --> Consent
-
-    %% Security & Blockchain
-    subgraph Security ["Security & Audit Layer"]
-        Encryption["AES-256-GCM Encryption"]
-        Blockchain["Hyperledger Fabric (Consent Audit Logs)"]
-    end
-
-    Consent --> Encryption
-    Consent --> Blockchain
-
-    %% Financial Routing
-    subgraph Finance ["Financial Routing & Clearinghouse"]
-        FinRouting["Financial Coordination & VCC Issuing (Stripe/Nium/Marqeta)"]
-        Adjudication["Clearinghouse Adjudication (X12 EDI 270/271/837P)"]
-    end
-
-    OCRModule --> FinRouting
-    FinRouting --> Adjudication
-
-    %% Persistent Storage
-    subgraph Storage ["Database & Storage Layer"]
-        DB[(MongoDB: User Profiles, Metadata, Logs)]
-    end
-
-    Encryption -.-> DB
-    FHIR -.-> DB
-    AISearch -.-> DB
+Run backend tests with `python -m unittest discover -s backend\tests`. Build the frontend with `npm ci` then `npm run build` from `frontend\`. For deployment, additionally run vulnerability scanning, migrations and restore/failover exercises, access-control testing, clinical validation, and a jurisdiction-specific compliance assessment.

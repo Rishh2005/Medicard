@@ -1,0 +1,114 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Set MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER:?Set MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+    command: ["--defaults-file=/etc/mysql/conf.d/medicard.cnf"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../database/mysql/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+      - ../database/mysql/my.cnf:/etc/mysql/conf.d/medicard.cnf:ro
+    networks: [medicard]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  mongodb:
+    image: mongo:8.0
+    restart: unless-stopped
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - mongo_data:/data/db
+    networks: [medicard]
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet --eval "try { rs.status().ok } catch(e) {
+            rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}).ok
+          }"
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 15s
+
+  mongo-init:
+    image: mongo:8.0
+    restart: "no"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command: ["mongosh", "mongodb://mongodb:27017/medicard?replicaSet=rs0", "--file", "/schema/init.js"]
+    volumes:
+      - ../database/mongo/init.js:/schema/init.js:ro
+    networks: [medicard]
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Set MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER:?Set MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      MYSQL_HOST: mysql
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MONGODB_URI: mongodb://mongodb:27017/medicard?replicaSet=rs0
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      JWT_ISSUER: ${JWT_ISSUER:-medicard-api}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-medicard-clients}
+      PATIENT_HMAC_KEY: ${PATIENT_HMAC_KEY:?Set PATIENT_HMAC_KEY}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:?Set DATA_ENCRYPTION_KEY}
+      IDENTITY_PUBLIC_KEY: ${IDENTITY_PUBLIC_KEY:?Set IDENTITY_PUBLIC_KEY}
+      IDENTITY_TRUSTED_ISSUER: ${IDENTITY_TRUSTED_ISSUER:?Set IDENTITY_TRUSTED_ISSUER}
+      MEDICARD_AUTH_USERS_JSON: ${MEDICARD_AUTH_USERS_JSON:?Set MEDICARD_AUTH_USERS_JSON}
+      ACCESS_TOKEN_TTL_SECONDS: ${ACCESS_TOKEN_TTL_SECONDS:-900}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      TRUST_PROXY: ${TRUST_PROXY:-0}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      mongo-init:
+        condition: service_completed_successfully
+    networks: [medicard]
+    ports:
+      - "127.0.0.1:5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/v1/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:5000/api/v1}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [medicard]
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  mysql_data:
+  mongo_data:
+
+networks:
+  medicard:
+    driver: bridge

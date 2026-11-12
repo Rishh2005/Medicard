@@ -1,0 +1,10 @@
+Flask==3.1.0
+Flask-Cors==5.0.0
+PyJWT==2.10.1
+cryptography==44.0.0
+SQLAlchemy==2.0.37
+PyMySQL==1.1.1
+pymongo==4.10.1
+gunicorn==23.0.0
+fhir.resources==7.1.0
+pydantic==2.10.6
