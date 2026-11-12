@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
-import { apiRequest, RoutingResult, signIn } from "@/lib/api";
+import { apiRequest, healthCheck, RoutingResult, signIn } from "@/lib/api";
 
 function Scanner({ onScan, onError }: { onScan: (value: string) => void; onError: (message: string) => void }) {
   const onScanRef = useRef(onScan);
@@ -40,7 +40,9 @@ function Scanner({ onScan, onError }: { onScan: (value: string) => void; onError
           onErrorRef.current("Camera access is unavailable or was denied.");
         }
       });
-    }).catch(() => onErrorRef.current("QR scanner could not be initialized."));
+    }).catch(() => {
+      if (!cancelled) onErrorRef.current("QR scanner could not be initialized.");
+    });
     return () => {
       cancelled = true;
       void scanner?.clear();
@@ -111,8 +113,23 @@ export default function Home() {
   const [routeFlags, setRouteFlags] = useState({ red_flag: false, urgent_review: false, routine_review: true });
   const [landmarks, setLandmarks] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState<"checking" | "operational" | "unavailable">("checking");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    const updateStatus = async () => {
+      const healthy = await healthCheck();
+      if (active) setServiceStatus(healthy ? "operational" : "unavailable");
+    };
+    void updateStatus();
+    const interval = window.setInterval(updateStatus, 30000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
 
   if (!token) return <Login onLogin={setToken} />;
 
@@ -131,7 +148,7 @@ export default function Home() {
   function lookup(event: FormEvent) {
     event.preventDefault();
     void runAction("records", async () => {
-      const result = await apiRequest<RecordResult>(`/clinical/records/${encodeURIComponent(patientId)}`, token, undefined, "GET");
+      const result = await apiRequest<RecordResult>("/clinical/records/lookup", token, { patient_id: patientId });
       setRecords(result);
     });
   }
@@ -206,7 +223,7 @@ export default function Home() {
         <div className="content-wrap" id="overview">
           <div className="welcome-row">
             <div><p className="eyebrow">THURSDAY, NOVEMBER 12</p><h1>Clinical workspace</h1><p className="muted">A secure view of connected care workflows.</p></div>
-            <div className="date-chip"><span className="live-dot" /> Systems operational</div>
+            <div className="date-chip"><span className={`service-dot ${serviceStatus}`} />{serviceStatus === "checking" ? "Checking services" : serviceStatus === "operational" ? "Services operational" : "Service unavailable"}</div>
           </div>
 
           <div className="notice-banner"><ShieldCheck size={18} /><p><b>Clinician-reviewed decision support.</b> Routing is administrative only and does not provide a diagnosis or treatment recommendation.</p><BadgeCheck size={17} className="notice-check" /></div>

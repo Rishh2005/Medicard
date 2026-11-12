@@ -23,20 +23,20 @@ def _decode_key(value):
     return decoded
 
 
-def encrypt_json(value, key):
+def encrypt_json(value, key, associated_data=None):
     nonce = os.urandom(12)
     plaintext = json.dumps(value, separators=(",", ":"), sort_keys=True).encode()
-    ciphertext = AESGCM(_decode_key(key)).encrypt(nonce, plaintext, None)
+    ciphertext = AESGCM(_decode_key(key)).encrypt(nonce, plaintext, associated_data)
     return {
         "ciphertext": base64.urlsafe_b64encode(ciphertext).decode().rstrip("="),
         "nonce": base64.urlsafe_b64encode(nonce).decode().rstrip("="),
     }
 
 
-def decrypt_json(envelope, key):
+def decrypt_json(envelope, key, associated_data=None):
     nonce = _decode_key_part(envelope["nonce"])
     ciphertext = _decode_key_part(envelope["ciphertext"])
-    plaintext = AESGCM(_decode_key(key)).decrypt(nonce, ciphertext, None)
+    plaintext = AESGCM(_decode_key(key)).decrypt(nonce, ciphertext, associated_data)
     return json.loads(plaintext)
 
 
@@ -54,7 +54,8 @@ def decode_base64url(value):
 def patient_pseudonym(patient_id, key):
     if not isinstance(patient_id, str) or not patient_id or len(patient_id) > 128:
         raise ValueError("Invalid patient identifier")
-    return hmac.new(key.encode(), patient_id.encode(), hashlib.sha256).hexdigest()
+    message = b"medicard:patient-id:v1:" + patient_id.encode()
+    return hmac.new(key.encode(), message, hashlib.sha256).hexdigest()
 
 
 def verify_identity_credential(credential, public_key, trusted_issuer):
@@ -65,7 +66,7 @@ def verify_identity_credential(credential, public_key, trusted_issuer):
     expires_at = credential["expires_at"]
     if issuer != trusted_issuer or not isinstance(subject, str) or not subject or len(subject) > 128:
         raise ValueError("Untrusted credential")
-    if not isinstance(expires_at, int) or expires_at <= int(time.time()):
+    if type(expires_at) is not int or expires_at <= int(time.time()):
         raise ValueError("Expired credential")
     signed_claims = {"issuer": issuer, "subject": subject, "expires_at": expires_at}
     message = json.dumps(signed_claims, separators=(",", ":"), sort_keys=True).encode()

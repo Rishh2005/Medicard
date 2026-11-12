@@ -35,7 +35,7 @@ The compose topology is suitable for local integration and demonstration only. I
 - `GET /api/v1/healthz`: dependency readiness; does not expose database details.
 - `POST /api/v1/auth/token`: exchanges a configured account's password for a short-lived JWT.
 - `POST /api/v1/clinical/records`: authenticated `records:write`; accepts one FHIR R4 `Bundle` containing exactly one `Patient`; stores the full Bundle encrypted.
-- `GET /api/v1/clinical/records/<patient-id>`: authenticated `records:read`; returns matching decrypted FHIR Bundles with Patient direct fields masked. `records:read:full` is needed to return the full Patient resource.
+- `POST /api/v1/clinical/records/lookup`: authenticated `records:read`; accepts `{"patient_id":"..."}` in the JSON body and returns matching decrypted FHIR Bundles with Patient direct fields masked. `records:read:full` is needed to return the full Patient resource.
 - `POST /api/v1/clinical/route`: authenticated `clinical:route`; returns deterministic urgency routing and reasons, not a diagnosis.
 - `POST /api/v1/identity/verify`: authenticated `identity:verify`; decrypts an encrypted QR envelope and verifies its Ed25519 issuer signature and expiry.
 - `POST /api/v1/identity/qr`: authenticated `identity:verify`; verifies an issuer-signed credential then encrypts it into a QR envelope.

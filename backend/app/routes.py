@@ -81,7 +81,7 @@ def save_records():
         patient_key = patient_pseudonym(patient_id, _config()["PATIENT_HMAC_KEY"])
     except ValueError:
         return jsonify(error="invalid_patient_id"), 400
-    encrypted = encrypt_json(normalized, _config()["DATA_ENCRYPTION_KEY"])
+    encrypted = encrypt_json(normalized, _config()["DATA_ENCRYPTION_KEY"], patient_key.encode())
     engine = get_mysql_engine(_config())
     with engine.begin() as connection:
         result = connection.execute(
@@ -100,10 +100,12 @@ def save_records():
     return jsonify(status="stored", record_id=record_id), 201
 
 
-@api.get("/clinical/records/<path:patient_id>")
+@api.post("/clinical/records/lookup")
 @require_scope("records:read")
-def get_records(patient_id):
-    if not patient_id or len(patient_id) > 128:
+def get_records():
+    payload = request.get_json(silent=True)
+    patient_id = payload.get("patient_id") if isinstance(payload, dict) else None
+    if not isinstance(patient_id, str) or not patient_id or len(patient_id) > 128:
         return jsonify(error="invalid_patient_id"), 400
     patient_key = patient_pseudonym(patient_id, _config()["PATIENT_HMAC_KEY"])
     engine = get_mysql_engine(_config())
@@ -119,6 +121,7 @@ def get_records(patient_id):
                 "nonce": base64.urlsafe_b64encode(row["nonce"]).decode().rstrip("="),
             },
             _config()["DATA_ENCRYPTION_KEY"],
+            patient_key.encode(),
         )
         for row in rows
     ]

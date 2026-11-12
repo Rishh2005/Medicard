@@ -44,6 +44,9 @@ h1, h2, h3, p { margin-top: 0; }
 .welcome-row h1 { margin-bottom: 7px; color: #eff5ff; font-size: 27px; letter-spacing: -.8px; }
 .muted { margin: 0; color: #8291a7; font-size: 12px; }
 .date-chip { display: inline-flex; align-items: center; gap: 9px; padding: 8px 11px; border: 1px solid #1a3040; border-radius: 6px; color: #95a9bc; font-size: 10px; }
+.service-dot { width: 7px; height: 7px; border-radius: 50%; background: #eab15f; }
+.service-dot.operational { background: #42d392; box-shadow: 0 0 10px rgba(66,211,146,.7); }
+.service-dot.unavailable { background: #f0757a; box-shadow: 0 0 10px rgba(240,117,122,.45); }
 .notice-banner { display: flex; align-items: center; gap: 12px; min-height: 49px; margin-bottom: 20px; padding: 10px 14px; border: 1px solid rgba(40,126,170,.26); border-radius: 7px; background: linear-gradient(95deg, rgba(8,59,87,.3), rgba(11,28,47,.46)); color: #64c7f5; }
 .notice-banner p { margin: 0; color: #a0b7c9; font-size: 11px; line-height: 1.6; }
 .notice-banner b { color: #d5f1ff; font-weight: 600; }

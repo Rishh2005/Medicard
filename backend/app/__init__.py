@@ -81,6 +81,18 @@ def create_app(test_config=None) -> Flask:
     def request_too_large(_error):
         return jsonify(error="request_too_large"), 413
 
+    @app.errorhandler(404)
+    def not_found(_error):
+        if request.path.startswith("/api/"):
+            return jsonify(error="not_found"), 404
+        return "Not found", 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(_error):
+        if request.path.startswith("/api/"):
+            return jsonify(error="method_not_allowed"), 405
+        return "Method not allowed", 405
+
     @app.errorhandler(500)
     def internal_error(error):
         app.logger.error("unhandled_error request_id=%s error_type=%s", getattr(g, "request_id", ""), type(error).__name__)
