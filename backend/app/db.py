@@ -1,6 +1,6 @@
+import os
 from functools import lru_cache
 
-from pymongo import MongoClient
 from sqlalchemy import create_engine, text
 
 
@@ -18,12 +18,36 @@ def mysql_url(config):
     )
 
 
-def get_mysql_engine(config):
-    key = mysql_url(config).render_as_string(hide_password=False)
-    return _mysql_engine(key)
+def get_sqlite_path(config):
+    return config.get("SQLITE_PATH", os.path.abspath(os.path.join(os.getcwd(), "medicard.db")))
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=8)
+def _sqlite_engine(path):
+    engine = create_engine(f"sqlite:///{path}", future=True)
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                """
+                CREATE TABLE IF NOT EXISTS patient_records (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    patient_key TEXT NOT NULL,
+                    ciphertext BLOB NOT NULL,
+                    nonce BLOB NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+        )
+        connection.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_patient_records_patient_key ON patient_records(patient_key)"
+            )
+        )
+    return engine
+
+
+@lru_cache(maxsize=8)
 def _mysql_engine(url):
     return create_engine(
         url,
@@ -36,26 +60,29 @@ def _mysql_engine(url):
     )
 
 
-def get_mongo_client(config):
-    return _mongo_client(config["MONGODB_URI"])
+def get_mysql_engine(config):
+    return _mysql_engine(mysql_url(config).render_as_string(hide_password=False))
 
 
-@lru_cache(maxsize=4)
-def _mongo_client(uri):
-    return MongoClient(
-        uri,
-        serverSelectionTimeoutMS=5000,
-        connectTimeoutMS=5000,
-        socketTimeoutMS=10000,
-        retryWrites=True,
-        appname="medicard-api",
-    )
+def get_sqlite_engine(config):
+    return _sqlite_engine(get_sqlite_path(config))
+
+
+def get_database_engine(config):
+    mysql_host = str(config.get("MYSQL_HOST") or "").strip()
+    if mysql_host:
+        try:
+            engine = get_mysql_engine(config)
+            with engine.connect() as connection:
+                connection.execute(text("SELECT 1"))
+            return engine
+        except Exception:
+            return get_sqlite_engine(config)
+    return get_sqlite_engine(config)
 
 
 def check_dependencies(config):
-    engine = get_mysql_engine(config)
+    engine = get_database_engine(config)
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
-    client = get_mongo_client(config)
-    client.admin.command("ping")
-    return engine, client
+    return engine

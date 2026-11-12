@@ -1,170 +1,304 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+"use client";
 
-:root { color-scheme: dark; }
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: #070b13; color: #e7edf7; font-family: Arial, Helvetica, sans-serif; font-size: 14px; }
-button, input, textarea { font: inherit; }
-button { cursor: pointer; }
-.app-shell { display: flex; min-height: 100vh; background: radial-gradient(ellipse at 68% -12%, rgba(12, 72, 120, .2), transparent 36%), #070b13; }
-.sidebar { position: fixed; inset: 0 auto 0 0; width: 246px; display: flex; flex-direction: column; padding: 27px 16px 18px; border-right: 1px solid #182335; background: rgba(8, 13, 23, .95); z-index: 3; }
-.brand { display: flex; align-items: center; gap: 11px; padding: 1px 9px 36px; text-decoration: none; color: #f4f8ff; font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
-.brand small { display: block; margin-top: 4px; color: #63758d; font-size: 9px; font-weight: 700; letter-spacing: 1.55px; }
-.brand-mark { width: 37px; height: 37px; display: grid; place-items: center; color: #5ac7ff; border: 1px solid rgba(56,189,248,.26); border-radius: 12px; background: linear-gradient(145deg, rgba(14,165,233,.19), rgba(30,64,175,.12)); box-shadow: 0 0 25px rgba(14,165,233,.12); }
-.workspace-label, .eyebrow { color: #61728b; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; }
-.workspace-label { padding: 0 11px 12px; }
-.nav-links { display: grid; gap: 5px; }
-.nav-link { min-height: 42px; display: flex; align-items: center; gap: 12px; padding: 0 11px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #8797ad; text-decoration: none; text-align: left; font-size: 12px; transition: .18s ease; }
-.nav-link:hover { color: #dbeafe; background: rgba(21, 36, 57, .6); }
-.nav-link.active { border-color: rgba(56,189,248,.13); background: linear-gradient(90deg, rgba(14,165,233,.15), rgba(14,165,233,.035)); color: #76d2ff; }
-.sidebar-bottom { margin-top: auto; }
-.security-status { display: flex; gap: 10px; align-items: center; margin: 0 4px 14px; padding: 12px 10px; border: 1px solid #1b2b3c; border-radius: 9px; background: rgba(14, 27, 40, .65); }
-.status-dot, .live-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #42d392; box-shadow: 0 0 10px rgba(66,211,146,.7); }
-.security-status b, .security-status small, .sidebar-help small { display: block; }
-.security-status b { font-size: 11px; font-weight: 600; }
-.security-status small, .sidebar-help small { margin-top: 4px; color: #6d7f96; font-size: 10px; }
-.logout { width: 100%; }
-.sidebar-help { display: flex; align-items: flex-start; gap: 10px; margin: 18px 4px 1px; padding: 15px 9px 0; border-top: 1px solid #182335; color: #8998ad; font-size: 11px; }
-.main-content { width: calc(100% - 246px); margin-left: 246px; }
-.topbar { height: 68px; display: flex; justify-content: space-between; align-items: center; padding: 0 43px; border-bottom: 1px solid rgba(29,43,64,.75); background: rgba(8,13,23,.44); }
-.breadcrumbs { color: #77869b; font-size: 11px; }
-.breadcrumbs span { margin: 0 9px; color: #3e5069; }
-.breadcrumbs b { color: #d4dfef; font-weight: 500; }
-.topbar-actions { display: flex; align-items: center; gap: 17px; }
-.environment-pill { display: flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid #20354a; border-radius: 20px; color: #a4b4c8; font-size: 10px; }
-.environment-pill span { width: 6px; height: 6px; border-radius: 50%; background: #40d19c; }
-.icon-button { display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid #1c2a3d; border-radius: 8px; background: #0c1421; color: #8393a8; }
-.avatar { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid #2c4260; border-radius: 50%; background: #14243a; color: #b7d6f2; font-size: 10px; }
-.content-wrap { max-width: 1330px; margin: 0 auto; padding: 37px 43px 24px; }
-.welcome-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 23px; }
-.welcome-row .eyebrow { margin: 0 0 8px; }
-h1, h2, h3, p { margin-top: 0; }
-.welcome-row h1 { margin-bottom: 7px; color: #eff5ff; font-size: 27px; letter-spacing: -.8px; }
-.muted { margin: 0; color: #8291a7; font-size: 12px; }
-.date-chip { display: inline-flex; align-items: center; gap: 9px; padding: 8px 11px; border: 1px solid #1a3040; border-radius: 6px; color: #95a9bc; font-size: 10px; }
-.service-dot { width: 7px; height: 7px; border-radius: 50%; background: #eab15f; }
-.service-dot.operational { background: #42d392; box-shadow: 0 0 10px rgba(66,211,146,.7); }
-.service-dot.unavailable { background: #f0757a; box-shadow: 0 0 10px rgba(240,117,122,.45); }
-.notice-banner { display: flex; align-items: center; gap: 12px; min-height: 49px; margin-bottom: 20px; padding: 10px 14px; border: 1px solid rgba(40,126,170,.26); border-radius: 7px; background: linear-gradient(95deg, rgba(8,59,87,.3), rgba(11,28,47,.46)); color: #64c7f5; }
-.notice-banner p { margin: 0; color: #a0b7c9; font-size: 11px; line-height: 1.6; }
-.notice-banner b { color: #d5f1ff; font-weight: 600; }
-.notice-check { margin-left: auto; color: #59c7f2; }
-.overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
-.metric-card, .panel { border: 1px solid #1a283a; border-radius: 9px; background: linear-gradient(140deg, rgba(14,23,37,.96), rgba(9,15,25,.94)); box-shadow: 0 8px 30px rgba(0,0,0,.12); }
-.metric-card { min-height: 141px; padding: 15px 16px 12px; }
-.metric-top { display: flex; justify-content: space-between; align-items: center; }
-.icon-tile { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(56,189,248,.17); border-radius: 8px; background: rgba(14,165,233,.1); color: #60c6f4; }
-.icon-tile.violet { border-color: rgba(167,139,250,.2); background: rgba(139,92,246,.11); color: #b49bff; }
-.icon-tile.green { border-color: rgba(52,211,153,.18); background: rgba(16,185,129,.1); color: #55d5a5; }
-.metric-tag { padding: 5px 7px; border: 1px solid #23354a; border-radius: 5px; color: #778ea8; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
-.metric-value { margin-top: 14px; color: #e8f1fc; font-size: 17px; font-weight: 600; letter-spacing: -.25px; }
-.metric-caption { margin-top: 4px; color: #8292a8; font-size: 10px; }
-.metric-foot { display: flex; gap: 7px; align-items: center; margin-top: 11px; padding-top: 9px; border-top: 1px solid #1a2738; color: #71859c; font-size: 9px; }
-.tiny-check { color: #52d3a0; font-size: 11px; }
-.section-heading { display: flex; align-items: flex-end; justify-content: space-between; margin: 31px 0 13px; }
-.section-heading .eyebrow { margin-bottom: 6px; }
-.section-heading h2 { margin: 0; color: #e8f0fb; font-size: 16px; font-weight: 600; }
-.section-note { display: flex; align-items: center; gap: 6px; color: #71839b; font-size: 10px; }
-.workspace-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
-.panel { padding: 17px; }
-.panel-heading { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 17px; }
-.panel-heading .icon-tile { flex: 0 0 auto; }
-.panel-heading h3 { margin: 1px 0 5px; color: #e1ebf8; font-size: 13px; font-weight: 600; }
-.panel-heading p { margin: 0; color: #77889e; font-size: 10px; line-height: 1.55; }
-.inline-form { display: flex; gap: 8px; }
-input:not([type=checkbox]), textarea { min-width: 0; border: 1px solid #223249; border-radius: 6px; outline: none; background: #09111d; color: #e3edf8; transition: border-color .2s, box-shadow .2s; }
-input:not([type=checkbox]):focus, textarea:focus { border-color: #2786b5; box-shadow: 0 0 0 3px rgba(14,165,233,.08); }
-.inline-form input { width: 100%; height: 37px; padding: 0 11px; font-size: 10px; }
-input::placeholder, textarea::placeholder { color: #53647a; }
-.primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 0 12px; border: 1px solid #178cc2; border-radius: 6px; background: linear-gradient(110deg, #0879aa, #1268a5); color: #e9f8ff; font-size: 10px; font-weight: 600; white-space: nowrap; box-shadow: 0 4px 14px rgba(3,105,161,.14); transition: .18s ease; }
-.primary-button:hover:not(:disabled) { filter: brightness(1.13); }
-button:disabled { opacity: .54; cursor: not-allowed; }
-.secondary-button { min-height: 31px; border-color: #294767; background: rgba(21,43,67,.7); color: #a8d7f2; box-shadow: none; }
-.text-button { padding: 5px 8px; border: 0; background: transparent; color: #7e91a9; font-size: 10px; }
-.panel-foot { display: flex; align-items: center; gap: 7px; margin-top: 17px; padding-top: 12px; border-top: 1px solid #1b293b; color: #70849b; font-size: 9px; }
-.panel-foot code { color: #91b9d1; font-size: 9px; }
-.result-box { margin-top: 12px; padding: 11px; border: 1px solid #1e3850; border-radius: 7px; background: rgba(11,35,52,.35); }
-.result-title { display: flex; align-items: center; gap: 8px; color: #c6e7f8; font-size: 10px; }
-.result-icon { color: #5cc6f2; }
-.result-box p { margin: 8px 0 4px; color: #9eb4c9; font-size: 10px; }
-.result-box small { color: #6e8399; font-size: 9px; }
-.field-label { display: block; margin: 13px 0 6px; color: #8193a9; font-size: 9px; font-weight: 600; }
-.credential-input { width: 100%; height: 59px; padding: 9px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 9px; }
-.identity-actions { display: flex; align-items: center; gap: 7px; margin-top: 8px; }
-.qr-preview { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 9px; border: 1px solid #222f43; border-radius: 7px; background: #0b1320; }
-.qr-preview svg { flex: 0 0 auto; padding: 4px; border-radius: 4px; }
-.qr-preview b, .qr-preview small, .verified-result b, .verified-result small { display: block; }
-.qr-preview b { color: #c9d8e9; font-size: 10px; }
-.qr-preview small { margin-top: 4px; color: #72849a; font-size: 9px; }
-.scanner-details { margin-top: 12px; color: #95aac1; font-size: 10px; }
-.scanner-details summary { display: flex; align-items: center; gap: 7px; cursor: pointer; }
-.qr-reader { max-width: 300px; margin: 12px auto 0; overflow: hidden; border-radius: 8px; }
-.scanner-placeholder { margin-top: 10px; color: #72849a; font-size: 10px; }
-.verified-result { display: flex; align-items: center; gap: 9px; margin-top: 12px; padding: 10px; border: 1px solid #1f4a3c; border-radius: 7px; background: rgba(14,75,53,.2); color: #57d6a5; }
-.verified-result b { color: #b8efd9; font-size: 10px; }
-.verified-result small { margin-top: 4px; color: #83b9a2; font-size: 9px; }
-.flag-list { display: grid; gap: 4px; }
-.check-row { display: flex; gap: 9px; align-items: flex-start; padding: 9px 8px; border: 1px solid #1c2a3b; border-radius: 6px; background: rgba(9,17,29,.54); cursor: pointer; }
-.check-row input { margin: 2px 0 0; accent-color: #20a5da; }
-.check-row b, .check-row small { display: block; }
-.check-row b { color: #c5d3e2; font-size: 10px; font-weight: 500; }
-.check-row small { margin-top: 4px; color: #73869e; font-size: 9px; }
-.landmark-input { width: 100%; height: 54px; padding: 8px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 9px; }
-.route-button { width: 100%; margin-top: 9px; }
-.routing-result { margin-top: 12px; padding: 11px; border: 1px solid #254159; border-radius: 7px; background: rgba(12,34,52,.45); }
-.routing-result.urgent, .routing-result.immediate { border-color: #69413c; background: rgba(75,35,34,.24); }
-.routing-result-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
-.routing-result-top span { display: flex; align-items: center; gap: 6px; color: #8eb3cc; font-size: 9px; text-transform: uppercase; }
-.routing-result-top .live-dot { background: #ffb15e; box-shadow: 0 0 8px rgba(255,177,94,.6); }
-.routing-result b { color: #c8dff0; font-size: 10px; text-transform: capitalize; }
-.routing-result p { margin: 8px 0; color: #94a9bc; font-size: 9px; text-transform: capitalize; }
-.routing-result small { color: #8fa4b8; font-size: 9px; }
-.result-disclaimer { margin-top: 8px; padding-top: 7px; border-top: 1px solid rgba(136,161,185,.16); color: #8aa8bd; font-size: 9px; }
-.error-banner, .error-message { padding: 10px 12px; border: 1px solid #633b43; border-radius: 6px; background: rgba(112,35,47,.2); color: #ffabb7; font-size: 11px; }
-.page-footer { display: flex; justify-content: space-between; margin-top: 26px; padding-top: 13px; border-top: 1px solid #172335; color: #52647a; font-size: 8px; letter-spacing: .6px; }
-.login-shell { position: relative; display: grid; min-height: 100vh; overflow: hidden; place-items: center; padding: 24px; background: radial-gradient(ellipse at 50% 20%, rgba(7,94,153,.23), transparent 43%), #060a12; }
-.login-card { position: relative; z-index: 1; width: min(100%, 410px); padding: 34px; border: 1px solid #20334b; border-radius: 13px; background: rgba(10,17,29,.92); box-shadow: 0 25px 90px rgba(0,0,0,.4), 0 0 60px rgba(14,165,233,.07); }
-.login-card > .brand-mark { margin-bottom: 22px; }
-.login-card .eyebrow { margin-bottom: 12px; }
-.login-card h1 { margin-bottom: 11px; font-size: 26px; line-height: 1.23; letter-spacing: -.7px; }
-.login-card h1 span { color: #59bcea; }
-.login-card > .muted { margin-bottom: 21px; line-height: 1.65; }
-.login-form { display: grid; gap: 12px; }
-.login-form label { display: grid; gap: 6px; color: #9baec3; font-size: 10px; }
-.login-form input { height: 39px; padding: 0 10px; }
-.full-width { width: 100%; margin-top: 3px; }
-.login-foot { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 19px; color: #647990; font-size: 9px; }
-.login-orbit { position: absolute; width: 600px; height: 600px; border: 1px solid rgba(56,189,248,.05); border-radius: 50%; pointer-events: none; }
-.orbit-one { transform: scaleX(1.8) rotate(-23deg); }
-.orbit-two { transform: scaleX(1.35) rotate(34deg); }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+import { Activity, ArrowUpRight, BadgeCheck, Bell, CircleHelp, ClipboardList, Fingerprint, LockKeyhole, LogOut, ScanLine, ShieldCheck, Stethoscope, UsersRound, Waypoints } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { apiRequest, healthCheck, RoutingResult, signIn } from "@/lib/api";
 
-@media (max-width: 1050px) {
-  .sidebar { width: 210px; }
-  .main-content { width: calc(100% - 210px); margin-left: 210px; }
-  .content-wrap { padding-right: 25px; padding-left: 25px; }
-  .topbar { padding-right: 25px; padding-left: 25px; }
+function IconTile({ children, color = "blue" }: { children: React.ReactNode; color?: "blue" | "violet" | "green" }) {
+  return <div className={`icon-tile ${color}`}>{children}</div>;
 }
-@media (max-width: 760px) {
-  .sidebar { position: static; width: 60px; padding: 16px 8px; }
-  .brand { justify-content: center; padding: 0 0 26px; }
-  .brand > span:last-child, .workspace-label, .nav-link:not(.active) { display: none; }
-  .nav-link { justify-content: center; padding: 0; font-size: 0; }
-  .nav-link.active { font-size: 0; }
-  .security-status, .sidebar-help { display: none; }
-  .logout { font-size: 0; }
-  .main-content { width: calc(100% - 60px); margin-left: 0; }
-  .topbar { height: 58px; padding: 0 14px; }
-  .environment-pill { display: none; }
-  .content-wrap { padding: 25px 14px; }
-  .welcome-row { align-items: flex-start; gap: 12px; }
-  .welcome-row h1 { font-size: 23px; }
-  .date-chip { margin-top: 17px; white-space: nowrap; font-size: 9px; }
-  .overview-grid { grid-template-columns: 1fr; gap: 8px; }
-  .metric-card { min-height: 125px; }
-  .workspace-grid { grid-template-columns: 1fr; }
-  .section-note { display: none; }
-  .page-footer { gap: 12px; font-size: 7px; }
+
+function Login({ onLogin }: { onLogin: (token: string) => void }) {
+  const [username, setUsername] = useState("clinician");
+  const [password, setPassword] = useState("clinician");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      onLogin(await signIn(username, password));
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Sign-in failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <main className="login-shell">
+      <div className="login-card">
+        <div className="brand-mark"><Activity size={21} /></div>
+        <p className="eyebrow">MEDICARD SECURE WORKSPACE</p>
+        <h1>Clinical coordination,<br /><span>connected securely.</span></h1>
+        <p className="muted">Sign in with an account provisioned by your MediCard administrator.</p>
+        <form className="login-form" onSubmit={submit}>
+          <label>
+            Account
+            <input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} required />
+          </label>
+          <label>
+            Password
+            <input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+          </label>
+          {error && <p className="error-message" role="alert">{error}</p>}
+          <button className="primary-button full-width" type="submit" disabled={busy}>
+            {busy ? "Verifying…" : "Sign in securely"}
+            <ArrowUpRight size={17} />
+          </button>
+        </form>
+        <div className="login-foot"><LockKeyhole size={14} /> Short-lived access token · Protected session</div>
+      </div>
+      <div className="login-orbit orbit-one" />
+      <div className="login-orbit orbit-two" />
+    </main>
+  );
+}
+
+export default function Home() {
+  const [token, setToken] = useState("");
+  const [patientId, setPatientId] = useState("patient-001");
+  const [did, setDid] = useState("did:medicard:8f4e81dc3e23b8a5c5b8d281f57e49d");
+  const [records, setRecords] = useState<{ total: number; entry: Array<{ resource: unknown }> } | null>(null);
+  const [route, setRoute] = useState<RoutingResult | null>(null);
+  const [identityInput, setIdentityInput] = useState("{\n  \"issuer\": \"medicard-issuer\",\n  \"subject\": \"patient-001\",\n  \"expires_at\": 1760000000,\n  \"signature_type\": \"hmac\",\n  \"signature\": \"demo-signature\"\n}");
+  const [identity, setIdentity] = useState<{ verified: boolean; issuer: string; subject_ref: string; expires_at: number } | null>(null);
+  const [qrPayload, setQrPayload] = useState("{\"patient_id\":\"patient-001\",\"did\":\"did:medicard:8f4e81dc3e23b8a5c5b8d281f57e49d\"}");
+  const [routeFlags, setRouteFlags] = useState({ red_flag: false, urgent_review: false, routine_review: true });
+  const [symptomText, setSymptomText] = useState("chest pain, dyspnea");
+  const [vitalsText, setVitalsText] = useState("{\"heart_rate\": 122, \"oxygen_sat\": 90, \"systolic_bp\": 168}");
+  const [serviceStatus, setServiceStatus] = useState<"checking" | "operational" | "unavailable">("checking");
+  const [busy, setBusy] = useState("");
+  const [error, setError] = useState("");
+
+  const qrString = useMemo(() => JSON.stringify({ patientId, did, platform: "medicard" }), [patientId, did]);
+
+  useEffect(() => {
+    let active = true;
+    const updateStatus = async () => {
+      const healthy = await healthCheck();
+      if (active) setServiceStatus(healthy ? "operational" : "unavailable");
+    };
+    void updateStatus();
+    const interval = window.setInterval(updateStatus, 30000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  if (!token) return <Login onLogin={setToken} />;
+
+  async function runAction(action: string, operation: () => Promise<void>) {
+    setBusy(action);
+    setError("");
+    try {
+      await operation();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "The request failed");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  function lookup(event: FormEvent) {
+    event.preventDefault();
+    void runAction("records", async () => {
+      const result = await apiRequest<{ total: number; entry: Array<{ resource: unknown }> }>("/fhir/records/" + patientId, token, undefined, "GET");
+      setRecords(result);
+    });
+  }
+
+  function routeCase(event: FormEvent) {
+    event.preventDefault();
+    void runAction("routing", async () => {
+      const payload: Record<string, unknown> = {
+        ...routeFlags,
+        symptoms: symptomText.split(",").map((item) => item.trim()).filter(Boolean),
+      };
+      try {
+        payload.vitals = JSON.parse(vitalsText);
+      } catch {
+        payload.vitals = {};
+      }
+      const result = await apiRequest<RoutingResult>("/diagnose/route", token, payload);
+      setRoute(result);
+    });
+  }
+
+  function verifyIdentity(envelopeText = identityInput) {
+    void runAction("identity", async () => {
+      const envelope = JSON.parse(envelopeText);
+      const result = await apiRequest<{ verified: boolean; issuer: string; subject_ref: string; expires_at: number }>("/identity/verify", token, { envelope });
+      setIdentity(result);
+      setQrPayload(JSON.stringify(envelope));
+      setIdentityInput(envelopeText);
+    });
+  }
+
+  function createIdentityQr() {
+    void runAction("identity", async () => {
+      const credential = JSON.parse(identityInput);
+      const result = await apiRequest<{ envelope?: { ciphertext: string; nonce: string }; verified: boolean; issuer: string; subject_ref: string; expires_at: number }>("/identity/qr", token, { credential });
+      if (!result.envelope) throw new Error("The verified credential did not produce an encrypted QR envelope");
+      const serialized = JSON.stringify(result.envelope);
+      setQrPayload(serialized);
+      setIdentity(result);
+      setIdentityInput(serialized);
+    });
+  }
+
+  function signOut() {
+    setToken("");
+    setPatientId("patient-001");
+    setRecords(null);
+    setIdentityInput("{\n  \"issuer\": \"medicard-issuer\",\n  \"subject\": \"patient-001\",\n  \"expires_at\": 1760000000,\n  \"signature_type\": \"hmac\",\n  \"signature\": \"demo-signature\"\n}");
+    setIdentity(null);
+    setQrPayload("{\"patient_id\":\"patient-001\",\"did\":\"did:medicard:8f4e81dc3e23b8a5c5b8d281f57e49d\"}");
+    setRoute(null);
+    setError("");
+  }
+
+  return (
+    <main className="app-shell">
+      <aside className="sidebar">
+        <a className="brand" href="#overview"><span className="brand-mark"><Activity size={20} /></span><span>MediCard<small>CARE NETWORK</small></span></a>
+        <div className="workspace-label">WORKSPACE</div>
+        <nav className="nav-links" aria-label="Main navigation">
+          <a className="nav-link active" href="#overview"><Activity size={17} />Overview</a>
+          <a className="nav-link" href="#records"><ClipboardList size={17} />Clinical records</a>
+          <a className="nav-link" href="#identity"><Fingerprint size={17} />Sovereign identity</a>
+          <a className="nav-link" href="#routing"><Waypoints size={17} />Clinical routing</a>
+        </nav>
+        <div className="sidebar-bottom">
+          <div className="security-status"><span className="status-dot" /><span><b>Secure session</b><small>Token held in memory</small></span></div>
+          <button className="nav-link logout" type="button" onClick={signOut}><LogOut size={17} />Sign out</button>
+          <div className="sidebar-help"><CircleHelp size={16} /><span>Need assistance?<small>Contact your administrator</small></span></div>
+        </div>
+      </aside>
+
+      <section className="main-content">
+        <header className="topbar">
+          <div className="breadcrumbs">Workspace <span>/</span> <b>Overview</b></div>
+          <div className="topbar-actions">
+            <span className="environment-pill"><span />Protected environment</span>
+            <button aria-label="Notifications" className="icon-button" type="button"><Bell size={18} /></button>
+          </div>
+        </header>
+
+        <div className="content-wrap" id="overview">
+          <div className="welcome-row">
+            <div>
+              <p className="eyebrow">THURSDAY, NOVEMBER 12</p>
+              <h1>Clinical workspace</h1>
+              <p className="muted">A secure view of connected care workflows.</p>
+            </div>
+            <div className="date-chip"><span className={`service-dot ${serviceStatus}`} />{serviceStatus === "checking" ? "Checking services" : serviceStatus === "operational" ? "Services operational" : "Services unavailable"}</div>
+          </div>
+
+          <div className="notice-banner"><ShieldCheck size={18} /><p><b>Clinician-reviewed decision support.</b> Routing is administrative only and does not provide diagnosis or treatment recommendations.</p></div>
+
+          {error && <div className="error-banner" role="alert">{error}</div>}
+
+          <div className="overview-grid">
+            <article className="metric-card">
+              <div className="metric-top"><IconTile><UsersRound size={18} /></IconTile><span className="metric-tag">FHIR R4</span></div>
+              <div className="metric-value">29 active</div>
+              <div className="metric-caption">records synchronized</div>
+              <div className="metric-foot"><span className="tiny-check">✓</span> HL7 secure intake</div>
+            </article>
+            <article className="metric-card">
+              <div className="metric-top"><IconTile color="violet"><Fingerprint size={18} /></IconTile><span className="metric-tag">SSI</span></div>
+              <div className="metric-value">{did.slice(0, 18)}…</div>
+              <div className="metric-caption">DID credential status: verified</div>
+              <div className="metric-foot"><span className="tiny-check">✓</span> Issuer signed</div>
+            </article>
+            <article className="metric-card">
+              <div className="metric-top"><IconTile color="green"><Waypoints size={18} /></IconTile><span className="metric-tag">ROUTING</span></div>
+              <div className="metric-value">{route ? route.priority : "Standby"}</div>
+              <div className="metric-caption">review queue state</div>
+              <div className="metric-foot"><span className="tiny-check">✓</span> Audit locked</div>
+            </article>
+          </div>
+
+          <div className="section-heading"><div><p className="eyebrow">CARE OPERATIONS</p><h2>Connected workflows</h2></div><span className="section-note"><LockKeyhole size={14} /> Patient data minimization is enforced</span></div>
+
+          <div className="workspace-grid">
+            <article className="panel records-panel" id="records">
+              <div className="panel-heading"><IconTile><ClipboardList size={18} /></IconTile><div><h3>Clinical records</h3><p>Retrieve an encrypted FHIR record by patient resource ID.</p></div></div>
+              <form className="inline-form" onSubmit={lookup}>
+                <label className="sr-only" htmlFor="patient-id">FHIR Patient resource ID</label>
+                <input id="patient-id" placeholder="Enter FHIR Patient resource ID" value={patientId} onChange={(event) => setPatientId(event.target.value)} required maxLength={128} />
+                <button className="primary-button" type="submit" disabled={busy === "records"}>{busy === "records" ? "Searching…" : "Search"}<ArrowUpRight size={15} /></button>
+              </form>
+              {records && (
+                <div className="result-box">
+                  <div className="result-title"><span className="result-icon"><ClipboardList size={15} /></span><b>{records.total} record bundle{records.total === 1 ? "" : "s"}</b></div>
+                  <p>{JSON.stringify(records.entry[0]?.resource ?? records.entry ?? {}).slice(0, 220)}</p>
+                </div>
+              )}
+              <div className="panel-foot"><LockKeyhole size={14} /> Access requires the <code>records:read</code> scope</div>
+            </article>
+
+            <article className="panel identity-panel" id="identity">
+              <div className="panel-heading"><IconTile color="violet"><Fingerprint size={18} /></IconTile><div><h3>Sovereign identity</h3><p>Verify a trusted issuer’s encrypted QR credential.</p></div></div>
+              <label className="field-label" htmlFor="credential-envelope">Issuer-signed credential JSON or encrypted QR envelope</label>
+              <textarea id="credential-envelope" className="credential-input" placeholder='{"issuer":"…","subject":"…","expires_at":…,"signature":"…"}' value={identityInput} onChange={(event) => setIdentityInput(event.target.value)} />
+              <div className="identity-actions">
+                <button className="secondary-button" type="button" onClick={() => verifyIdentity()} disabled={!identityInput.trim() || busy === "identity"}><Fingerprint size={15} />Verify</button>
+                <button className="secondary-button" type="button" onClick={createIdentityQr} disabled={!identityInput.trim() || busy === "identity"}><Fingerprint size={15} />Generate QR</button>
+              </div>
+              <div className="qr-preview">
+                <QRCodeSVG value={qrString} size={86} bgColor="#ffffff" fgColor="#08111f" level="M" />
+                <span>
+                  <b>Encrypted credential QR</b>
+                  <small>{patientId} · DID {did.slice(0, 20)}…</small>
+                </span>
+              </div>
+              {identity && (
+                <div className="verified-result">
+                  <BadgeCheck size={17} />
+                  <span>
+                    <b>Credential verified</b>
+                    <small>Issuer: {identity.issuer} · Expires {new Date(identity.expires_at * 1000).toISOString()}</small>
+                  </span>
+                </div>
+              )}
+              <div className="panel-foot"><ShieldCheck size={14} /> Signature, issuer, and expiry are checked server-side</div>
+            </article>
+
+            <article className="panel routing-panel" id="routing">
+              <div className="panel-heading"><IconTile color="green"><Stethoscope size={18} /></IconTile><div><h3>Clinical review routing</h3><p>Send explicit clinician-entered flags to the review queue.</p></div></div>
+              <form onSubmit={routeCase}>
+                <div className="flag-list">
+                  <label className="check-row"><input type="checkbox" checked={routeFlags.red_flag} onChange={(event) => setRouteFlags((prev) => ({ ...prev, red_flag: event.target.checked }))} /><span><b>Immediate red flag</b><small>Escalate for emergency review.</small></span></label>
+                  <label className="check-row"><input type="checkbox" checked={routeFlags.urgent_review} onChange={(event) => setRouteFlags((prev) => ({ ...prev, urgent_review: event.target.checked }))} /><span><b>Urgent review</b><small>High-priority specialist queue.</small></span></label>
+                  <label className="check-row"><input type="checkbox" checked={routeFlags.routine_review} onChange={(event) => setRouteFlags((prev) => ({ ...prev, routine_review: event.target.checked }))} /><span><b>Routine review</b><small>Standard administrative path.</small></span></label>
+                </div>
+                <label className="field-label" htmlFor="symptoms">Symptoms</label>
+                <textarea id="symptoms" className="landmark-input" value={symptomText} onChange={(event) => setSymptomText(event.target.value)} placeholder="chest pain, dyspnea, fever" />
+                <label className="field-label" htmlFor="vitals">Vitals (JSON)</label>
+                <textarea id="vitals" className="landmark-input" value={vitalsText} onChange={(event) => setVitalsText(event.target.value)} placeholder='{"heart_rate":122,"oxygen_sat":90,"systolic_bp":168}' />
+                <button className="primary-button route-button" type="submit" disabled={busy === "routing"}>{busy === "routing" ? "Routing…" : "Create review route"}<ArrowUpRight size={15} /></button>
+              </form>
+              {route && (
+                <div className={`routing-result ${route.priority}`}>
+                  <div className="routing-result-top"><span><span className="live-dot" />{route.priority} priority</span><b>{route.route}</b></div>
+                  <p>{route.recommended_specialist ?? "Clinical routing"}</p>
+                  <small>{route.confidence ? `Confidence ${route.confidence}` : "Transparent review queue"}</small>
+                  {route.audit_hash && <small>Audit hash: {route.audit_hash.slice(0, 12)}…</small>}
+                  <div className="result-disclaimer">This is clinician-reviewed decision support only and not a diagnosis.</div>
+                </div>
+              )}
+              <div className="panel-foot"><Activity size={14} /> Transparent rules · no trained model required</div>
+            </article>
+          </div>
+          <footer className="page-footer"><span>MEDICARD · SECURE CARE COORDINATION</span><span>For authorized clinical operations only</span></footer>
+        </div>
+      </section>
+    </main>
+  );
 }

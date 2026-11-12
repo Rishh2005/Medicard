@@ -1,60 +1,46 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000/api/v1";
+from .inference import clinical_risk_score
 
-export async function healthCheck(): Promise<boolean> {
-  try {
-    const response = await fetch(`${API_BASE}/healthz`, { cache: "no-store" });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
 
-export type RoutingResult = {
-  route: string;
-  priority: string;
-  reasons: string[];
-  diagnosis: null;
-  decision_support_only: true;
-  requires_clinician_review: true;
-  biomechanics?: {
-    landmark_count: number;
-    normalized_path_length: number;
-    interpretation: string;
-  };
-};
+def route_clinical_input(payload):
+    """Map explicit, clinician-entered warning flags to a review queue; never diagnose."""
+    if not isinstance(payload, dict):
+        raise ValueError("Clinical payload must be a dictionary")
+    if any(key in payload for key in ("symptoms", "vitals", "metrics", "clinical_summary")):
+        result = clinical_risk_score(payload)
+        return {
+            **result,
+            "reasons": result.get("risk_factors", ["clinical_review_requested"]),
+            "decision_support_only": True,
+            "diagnosis": None,
+            "requires_clinician_review": True,
+        }
 
-export async function apiRequest<T>(
-  path: string,
-  token: string,
-  body?: unknown,
-  method: "GET" | "POST" = "POST"
-): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      ...(body === undefined ? {} : { "Content-Type": "application/json" })
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    cache: "no-store"
-  });
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(typeof result.error === "string" ? result.error : `Request failed (${response.status})`);
-  }
-  return result as T;
-}
+    allowed = {"red_flag", "urgent_review", "routine_review", "mobility_observations"}
+    unknown = set(payload) - allowed
+    if unknown:
+        raise ValueError(f"Unsupported clinical routing fields: {', '.join(sorted(unknown))}")
+    red_flag = payload.get("red_flag", False)
+    urgent_review = payload.get("urgent_review", False)
+    routine_review = payload.get("routine_review", False)
+    if not all(isinstance(flag, bool) for flag in (red_flag, urgent_review, routine_review)):
+        raise ValueError("Routing flags must be booleans")
 
-export async function signIn(username: string, password: string): Promise<string> {
-  const response = await fetch(`${API_BASE}/auth/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-    cache: "no-store"
-  });
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok || typeof result.access_token !== "string") {
-    throw new Error(typeof result.error === "string" ? result.error : "Sign-in failed");
-  }
-  return result.access_token;
-}
+    if red_flag:
+        decision = {"route": "immediate_clinician_review", "priority": "immediate", "reasons": ["red_flag_submitted_by_clinician"]}
+    elif urgent_review:
+        decision = {"route": "urgent_clinician_review", "priority": "urgent", "reasons": ["urgent_review_submitted_by_clinician"]}
+    else:
+        decision = {"route": "routine_clinician_review", "priority": "routine", "reasons": ["routine_review_requested" if routine_review else "no_urgency_flag_submitted"]}
+
+    result = {
+        **decision,
+        "decision_support_only": True,
+        "diagnosis": None,
+        "requires_clinician_review": True,
+    }
+    observations = payload.get("mobility_observations")
+    if observations is not None:
+        from .biomechanics import summarize_landmarks
+
+        result["biomechanics"] = summarize_landmarks(observations)
+    return result

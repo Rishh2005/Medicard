@@ -1,3 +1,6 @@
+import hashlib
+import json
+import os
 import time
 from functools import wraps
 
@@ -16,7 +19,7 @@ def issue_token(username, scopes, config):
             "aud": config["JWT_AUDIENCE"],
             "iat": now,
             "nbf": now,
-            "exp": now + config["ACCESS_TOKEN_TTL_SECONDS"],
+            "exp": now + int(config["ACCESS_TOKEN_TTL_SECONDS"]),
         },
         config["SECRET_KEY"],
         algorithm="HS256",
@@ -24,13 +27,15 @@ def issue_token(username, scopes, config):
 
 
 def authenticate_user(username, password, users):
+    if not isinstance(username, str) or not username:
+        return None
     account = users.get(username)
     if not isinstance(account, dict) or not isinstance(account.get("password_hash"), str):
         return None
     try:
         if not check_password_hash(account["password_hash"], password):
             return None
-    except (ValueError, TypeError):
+    except (TypeError, ValueError):
         return None
     scopes = account.get("scopes")
     if not isinstance(scopes, list) or not all(isinstance(scope, str) for scope in scopes):

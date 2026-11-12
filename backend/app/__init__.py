@@ -25,7 +25,7 @@ class JsonFormatter(logging.Formatter):
         )
 
 
-def _configure_logging() -> None:
+def _configure_logging():
     dictConfig(
         {
             "version": 1,
@@ -37,7 +37,7 @@ def _configure_logging() -> None:
     )
 
 
-def create_app(test_config=None) -> Flask:
+def create_app(test_config=None):
     _configure_logging()
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -47,18 +47,18 @@ def create_app(test_config=None) -> Flask:
         Config.validate(app.config)
     app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
     app.logger.setLevel(logging.INFO)
-
     if app.config.get("TRUST_PROXY"):
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     CORS(
         app,
-        resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
+        resources={r"/api/*": {"origins": app.config.get("CORS_ORIGINS", ["http://localhost:3000"])}} ,
         supports_credentials=False,
         allow_headers=["Authorization", "Content-Type"],
         methods=["GET", "POST", "OPTIONS"],
         max_age=600,
     )
+    app.register_blueprint(api, url_prefix="/api")
     app.register_blueprint(api, url_prefix="/api/v1")
 
     @app.before_request
@@ -83,13 +83,13 @@ def create_app(test_config=None) -> Flask:
 
     @app.errorhandler(404)
     def not_found(_error):
-        if request.path.startswith("/api/"):
+        if request.path.startswith("/api"):
             return jsonify(error="not_found"), 404
         return "Not found", 404
 
     @app.errorhandler(405)
     def method_not_allowed(_error):
-        if request.path.startswith("/api/"):
+        if request.path.startswith("/api"):
             return jsonify(error="method_not_allowed"), 405
         return "Method not allowed", 405
 
